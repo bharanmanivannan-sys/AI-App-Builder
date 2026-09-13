@@ -1,0 +1,48 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * { border-color: theme("colors.line"); }
+  html, body, #root { height: 100%; }
+  body {
+    @apply bg-canvas text-tprimary font-body antialiased;
+    background-image:
+      radial-gradient(900px circle at 12% -8%, rgba(59,130,246,0.10), transparent 45%),
+      radial-gradient(700px circle at 96% 4%, rgba(139,92,246,0.10), transparent 42%);
+    background-attachment: fixed;
+  }
+  h1, h2, h3, h4 { @apply font-heading tracking-tight; }
+  ::selection { background: rgba(59,130,246,0.35); color: #fff; }
+}
+
+@layer utilities {
+  .glass {
+    background: rgba(18,24,36,0.72);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+  }
+  .card {
+    @apply bg-surface border border-line rounded-xl shadow-card;
+  }
+  .card-hover { @apply transition-colors duration-200 hover:bg-surfaceHover; }
+  .caption { @apply text-[11px] font-mono uppercase tracking-[0.18em] text-tmuted; }
+  .grain::before {
+    content: ""; position: absolute; inset: 0; pointer-events: none; opacity: 0.4;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.35'/%3E%3C/svg%3E");
+  }
+}
+
+/* thin scrollbars */
+::-webkit-scrollbar { width: 9px; height: 9px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #1E293B; border-radius: 8px; }
+::-webkit-scrollbar-thumb:hover { background: #334155; }
+
+/* recharts tooltip text */
+.recharts-default-tooltip { background: #121824 !important; border: 1px solid #1E293B !important; border-radius: 10px !important; }
+
+@media print {
+  .no-print { display: none !important; }
+  body { background: #fff !important; }
+}

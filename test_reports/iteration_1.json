@@ -1,0 +1,38 @@
+{
+  "summary": "Full backend + frontend testing of AI Competitor Intelligence app. Backend: 12/13 pytest tests pass (auth incl. cookie+Bearer, dashboard, competitor create+live scrape+GPT analyze on example.com, our-product analyze setting has_real_product=true, insights/generate returning executive_summary+swot+insights+actions, demo load/clear). The 1 'failure' is a test-assertion issue not a real bug: PATCH /api/actions/{id} returns {ok: true} (status update succeeds, just no full object returned). Frontend: Login with admin@example.com/admin123 works cleanly, navigates to dashboard. All 6 score cards render (Overall 74, Price 82, Features 74, Value 78, Market 62, Innovation 76). Sidebar nav (Dashboard/Competitors/Compare/Insights/SWOT/Settings) all functional. Compare page shows Radar, Positioning scatter with X/Y selectors, Score Comparison bar. Competitors page lists 7 demo competitors with Demo labels + status badges + action icons. All required data-testids (input-email, input-password, auth-submit, nav-*, add-competitor-btn, generate-insights-btn, export-pdf-btn, toggle-demo-btn) are present. Executive summary + AI insights load. No page reload/input-wipe issue observed.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "PATCH /api/actions/{id}", "issue": "Returns {ok: true} instead of the updated action object; harder for clients to sync state without an extra GET. Update itself works."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "Competitors.js table rows", "issue": "React 'Each child in a list should have a unique key prop' warning in console (missing key on <tr>). Minor - doesn't break UI.", "selector": "table tr", "priority": "LOW"}
+    ],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Compare > Competitive Positioning scatter", "issues": ["Bubble labels overlap when multiple competitors cluster in same quadrant (e.g. Slack/Samsung/Microsoft Teams/Ola Electric all overlap at high Price/Features)."]}
+    ]
+  },
+  "test_report_links": ["/app/backend/tests/test_backend_api.py", "/app/test_reports/pytest/pytest_results.xml"],
+  "action_items": [
+    "Optional: return the full updated action doc from PATCH /api/actions/{id} (currently returns {ok: true}).",
+    "Optional: add unique React key to competitor table rows in Competitors.js to silence console warning.",
+    "Optional: improve label spacing / add tooltips on Competitive Positioning scatter to reduce overlap."
+  ],
+  "critical_code_review_comments": [
+    "Auth cleanly supports both Bearer token (localStorage) and httpOnly cookie — verified both work against /api/auth/me.",
+    "Live scraping + GPT-5.4 analyze on example.com and stripe.com returned real data with 'Not publicly available' where appropriate (no fabrication).",
+    "Server-side weighted overall score computed correctly (verified visually: 74 baseline with demo data).",
+    "No hardcoded URLs found in tested paths — REACT_APP_BACKEND_URL respected."
+  ],
+  "updated_files": ["/app/backend/tests/test_backend_api.py"],
+  "success_rate": {"backend": "92%", "frontend": "100%"},
+  "test_credentials": "admin@example.com / admin123 (from /app/memory/test_credentials.md)",
+  "seed_data_creation": "Created TEST_ prefixed users via /api/auth/register and TEST_Example competitor (cleaned up). No permanent seed changes.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Backend pytest suite at /app/backend/tests/test_backend_api.py — run with: pytest /app/backend/tests/test_backend_api.py -v. Login: admin@example.com/admin123. LLM analyze/insights calls take 10-40s; timeouts are set at 180s. Frontend data-testids are all present as documented; no input-wipe/WDS reload issue observed during test run.",
+  "rca of the issue": "N/A — no blocking issues."
+}

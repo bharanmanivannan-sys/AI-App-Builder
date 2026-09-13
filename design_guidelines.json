@@ -1,0 +1,134 @@
+{
+  "project_title": "AI Competitor & Product Analysis Dashboard",
+  "archetype": "The Executive Command Center (Performance Pro x Swiss Precision)",
+  "app_type": "saas_app",
+  "theme_strategy": {
+    "default_mode": "dark",
+    "toggle_supported": true,
+    "dark_mode_bg": "#0A0D14",
+    "dark_card_bg": "#121824",
+    "dark_border": "#1E293B",
+    "light_mode_bg": "#F8FAFC",
+    "light_card_bg": "#FFFFFF",
+    "light_border": "#E2E8F0"
+  },
+  "typography": {
+    "font_family_heading": "Outfit, Cabinet Grotesk, sans-serif",
+    "font_family_body": "Plus Jakarta Sans, Inter, sans-serif",
+    "font_family_mono": "JetBrains Mono, IBM Plex Mono, monospace",
+    "heading_rules": "Use tracking-tight for H1-H3. Never use generic Inter or Arial for main headings.",
+    "hierarchy": {
+      "h1": "text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight",
+      "h2": "text-2xl sm:text-3xl font-semibold tracking-tight",
+      "h3": "text-xl sm:text-2xl font-medium",
+      "h4": "text-lg font-medium",
+      "body": "text-sm sm:text-base text-slate-300 leading-relaxed",
+      "caption": "text-xs font-mono uppercase tracking-widest text-slate-400"
+    }
+  },
+  "colors": {
+    "primary_brand": "#3B82F6",
+    "primary_accent": "#60A5FA",
+    "ai_spark_violet": "#8B5CF6",
+    "ai_spark_cyan": "#06B6D4",
+    "status_success": "#10B981",
+    "status_warning": "#F59E0B",
+    "status_danger": "#EF4444",
+    "status_info": "#0EA5E9",
+    "dark_palette": {
+      "bg": "#0A0D14",
+      "surface": "#121824",
+      "surface_hover": "#1E2638",
+      "border": "#1E293B",
+      "text_primary": "#F8FAFC",
+      "text_secondary": "#94A3B8",
+      "text_muted": "#64748B"
+    },
+    "light_palette": {
+      "bg": "#F8FAFC",
+      "surface": "#FFFFFF",
+      "surface_hover": "#F1F5F9",
+      "border": "#E2E8F0",
+      "text_primary": "#0F172A",
+      "text_secondary": "#475569",
+      "text_muted": "#94A3B8"
+    }
+  },
+  "layout_and_spacing": {
+    "sidebar_width": "250px",
+    "container_padding": "p-4 sm:p-6 lg:p-8",
+    "card_internal_padding": "p-5 sm:p-6",
+    "grid_gap": "gap-5 sm:gap-6",
+    "bento_grid_structure": "MODE B High Density Grid: grid-cols-1 md:grid-cols-2 lg:grid-cols-4",
+    "card_radius": "rounded-xl",
+    "card_border_style": "border border-slate-800/80 dark:border-slate-800 light:border-slate-200"
+  },
+  "components_and_visual_elements": {
+    "score_cards": {
+      "style": "High-impact stat tiles with subtle gradient glows, circular/bar indicators, and dynamic diff comparison tags (+5%, Competitive Lead, Threat).",
+      "metrics": ["Overall Score", "Price Competitiveness", "Feature Strength", "Value Proposition", "Market Position", "Innovation / AI Score"]
+    },
+    "ai_executive_summary": {
+      "style": "Glow border card with AI badge, quick takeaways bullet points, key strategic risks, and dynamic refresh trigger."
+    },
+    "feature_comparison_matrix": {
+      "style": "Dense tabular grid with custom visual status icons (Check green = Available, Cross red = Not Available, Question amber = Unknown/Unclear), hover row highlight, and category filter chips."
+    },
+    "scatter_chart": {
+      "style": "Interactive positioning chart using Recharts ScatterPlot or custom SVG canvas with customizable X (e.g. Price) and Y (e.g. Feature Score) axes, quadrant labels (Market Leaders, Niche Players, Budget Alternatives, Premium Overpriced), and interactive tooltips."
+    },
+    "radar_chart": {
+      "style": "Multi-dimensional company comparison overlay (Overall, Features, Pricing, AI, UX, Support)."
+    },
+    "swot_quadrants": {
+      "style": "4-card matrix grid (Strengths = Green tint, Weaknesses = Amber tint, Opportunities = Blue tint, Threats = Rose tint) with actionable bullet tags."
+    },
+    "recommended_actions": {
+      "style": "Priority-ordered list with P0 (Red badge), P1 (Orange badge), P2 (Blue badge) tags and interactive status dropdowns (Not Started / In Progress / Completed)."
+    },
+    "onboarding_guide": {
+      "style": "Step-by-step interactive banner/modal guiding the user through: 1. Add Competitor -> 2. AI Scraping -> 3. View Intelligence Dashboard -> 4. Export PDF."
+    }
+  },
+  "image_urls": {
+    "avatars": [
+      {
+        "url": "https://images.unsplash.com/photo-1560250097-0b93528c311a?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzMjd8MHwxfHNlYXJjaHwxfHxleGVjdXRpdmUlMjBidXNpbmVzcyUyMHBvcnRyYWl0JTIwaGVhZHNob3R8ZW58MHx8fHwxNzg5MzAwMDE4fDA&ixlib=rb-4.1.0&q=85",
+        "description": "Executive portrait - Male CEO / Product Lead",
+        "category": "user_profile"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1573497161161-c3e73707e25c?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzMjd8MHwxfHNlYXJjaHwzfHxleGVjdXRpdmUlMjBidXNpbmVzcyUyMHBvcnRyYWl0JTIwaGVhZHNob3R8ZW58MHx8fHwxNzg5MzAwMDE4fDA&ixlib=rb-4.1.0&q=85",
+        "description": "Executive portrait - Female VP Strategy",
+        "category": "user_profile"
+      }
+    ],
+    "company_logos": [
+      {
+        "url": "https://images.unsplash.com/photo-1760037034804-2dce280659e2?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzNDR8MHwxfHNlYXJjaHwxfHxjb3Jwb3JhdGUlMjB0ZWNoJTIwbG9nbyUyMGJyYW5kJTIwYWJzdHJhY3R8ZW58MHx8fHwxNzg5MzAwMDE1fDA&ixlib=rb-4.1.0&q=85",
+        "description": "Abstract Tech Logo Dark",
+        "category": "competitor_logo"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1781313098704-8e70fb135e9c?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzNDR8MHwxfHNlYXJjaHwzfHxjb3Jwb3JhdGUlMjB0ZWNoJTIwbG9nbyUyMGJyYW5kJTIwYWJzdHJhY3R8ZW58MHx8fHwxNzg5MzAwMDE1fDA&ixlib=rb-4.1.0&q=85",
+        "description": "Blue Tech Logo",
+        "category": "competitor_logo"
+      }
+    ]
+  },
+  "testing_and_accessibility": {
+    "data_testid_requirement": "ALL interactive components, buttons, inputs, tabs, chart container, table rows, badges, and modals MUST include data-testid attributes.",
+    "convention": "kebab-case, role-based. Example: data-testid='add-competitor-button', data-testid='competitor-row-acme-inc', data-testid='pdf-export-button', data-testid='login-submit-button'.",
+    "contrast_standard": "WCAG AA / APCA compliant. All text must maintain minimum 4.5:1 contrast against surface background.",
+    "hover_rule": "Every hover state MUST explicitly define text color alongside background color change."
+  },
+  "instructions_to_main_agent": [
+    "Use JavaScript (.js) files for all React component development.",
+    "Build a complete, responsive left navigation bar with items: Dashboard, Competitors, Compare, Insights, SWOT, Settings.",
+    "Ensure all data sources show confidence scores (e.g. 94% Confidence), last crawled date, and source URL fallback.",
+    "Implement PDF Export using html2canvas/jspdf or window.print with custom @media print stylesheet.",
+    "Provide seed competitor data (e.g., Acme Intelligence, SaaS Pulse, OmniMetrics) with option to add real/mock scraped competitors.",
+    "Add toast notifications using Sonner for user actions (e.g., 'Competitor added', 'Scraping initiated', 'PDF exported').",
+    "Include guided onboarding banner with step indicators that can be dismissed or restarted."
+  ]
+}
