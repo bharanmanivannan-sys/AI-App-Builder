@@ -211,7 +211,10 @@ async def _seed_user_demo(uid: str):
     op["created_at"] = datetime.now(timezone.utc).isoformat()
     await db.our_product.insert_one(op)
     for c in demo_data.DEMO_COMPETITORS:
-        await db.competitors.insert_one(demo_data.build_demo_competitor(uid, c))
+        comp = demo_data.build_demo_competitor(uid, c)
+        await db.competitors.insert_one(comp)
+        for h in demo_data.build_demo_history(uid, comp):
+            await db.competitor_history.insert_one(h)
 
 
 async def _user_has_real(uid: str) -> bool:
@@ -357,8 +360,35 @@ async def analyze_competitor(cid: str, user: dict = Depends(current_user)):
     await db.competitors.update_one({"id": cid}, {"$set": {
         "status": "analyzed", "analysis": result,
         "last_analyzed": datetime.now(timezone.utc).strftime("%Y-%m-%d")}})
+    await _record_history(user["_id"], cid, doc["company_name"], result)
     updated = await db.competitors.find_one({"id": cid})
     return _clean(updated)
+
+
+async def _record_history(uid, cid, company_name, result):
+    now = datetime.now(timezone.utc)
+    pricing = result.get("pricing") or {}
+    await db.competitor_history.insert_one({
+        "id": str(uuid.uuid4()), "user_id": uid, "competitor_id": cid,
+        "company_name": company_name,
+        "analyzed_at": now.isoformat(),
+        "date": now.strftime("%Y-%m-%d"),
+        "overall": result.get("overall"),
+        "scores": result.get("scores", {}),
+        "starting_price": pricing.get("starting_price"),
+        "confidence": result.get("confidence"),
+        "feature_count": len(result.get("features", []) or []),
+    })
+
+
+@api.get("/competitors/{cid}/history")
+async def competitor_history(cid: str, user: dict = Depends(current_user)):
+    comp = await db.competitors.find_one({"id": cid, "user_id": user["_id"]})
+    if not comp:
+        raise HTTPException(status_code=404, detail="Competitor not found")
+    docs = await db.competitor_history.find(
+        {"competitor_id": cid, "user_id": user["_id"]}).sort("analyzed_at", 1).to_list(500)
+    return [_clean(d) for d in docs]
 
 
 @api.delete("/competitors/{cid}")
@@ -366,6 +396,7 @@ async def delete_competitor(cid: str, user: dict = Depends(current_user)):
     res = await db.competitors.delete_one({"id": cid, "user_id": user["_id"]})
     if res.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Competitor not found")
+    await db.competitor_history.delete_many({"competitor_id": cid, "user_id": user["_id"]})
     return {"ok": True}
 
 
@@ -471,15 +502,22 @@ async def load_demo(user: dict = Depends(current_user)):
         existing = await db.competitors.count_documents({"user_id": uid, "is_demo": True})
         if existing == 0:
             for c in demo_data.DEMO_COMPETITORS:
-                await db.competitors.insert_one(demo_data.build_demo_competitor(uid, c))
+                comp = demo_data.build_demo_competitor(uid, c)
+                await db.competitors.insert_one(comp)
+                for h in demo_data.build_demo_history(uid, comp):
+                    await db.competitor_history.insert_one(h)
     return {"ok": True}
 
 
 @api.delete("/demo/clear")
 async def clear_demo(user: dict = Depends(current_user)):
     uid = user["_id"]
+    demo_ids = [c["id"] for c in await db.competitors.find(
+        {"user_id": uid, "is_demo": True}, {"id": 1}).to_list(500)]
     await db.competitors.delete_many({"user_id": uid, "is_demo": True})
     await db.our_product.delete_many({"user_id": uid, "is_demo": True})
+    if demo_ids:
+        await db.competitor_history.delete_many({"user_id": uid, "competitor_id": {"$in": demo_ids}})
     return {"ok": True}
 
 

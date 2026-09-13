@@ -173,7 +173,7 @@ def build_demo_competitor(user_id, c):
         "target_market": c.get("target_market"),
         "notes": c.get("notes", ""),
         "status": "analyzed",
-        "last_analyzed": _NOW,
+        "last_analyzed": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
         "created_at": now,
         "analysis": {
             "description": c.get("description", f"{c['company_name']} — demo profile."),
@@ -195,3 +195,49 @@ def build_demo_competitor(user_id, c):
 def _overall(scores):
     from analysis import compute_overall
     return compute_overall(scores)
+
+
+# Past scan snapshots (oldest -> newest) so the timeline shows movement.
+# Offsets are subtracted from current scores, then trend up toward "today".
+_HISTORY_STEPS = [
+    {"days": 120, "delta": -9, "conf": "Low"},
+    {"days": 85, "delta": -6, "conf": "Medium"},
+    {"days": 50, "delta": -3, "conf": "Medium"},
+    {"days": 20, "delta": -1, "conf": "High"},
+]
+
+_SCORE_KEYS = ["price_competitiveness", "feature_strength", "value_proposition",
+               "market_position", "innovation"]
+
+
+def build_demo_history(user_id, comp):
+    from datetime import timedelta
+    from analysis import compute_overall
+    analysis = comp["analysis"]
+    base = analysis["scores"]
+    now = datetime.now(timezone.utc)
+    out = []
+    for i, step in enumerate(_HISTORY_STEPS):
+        d = step["delta"]
+        scores = {k: max(0, min(100, int(base.get(k, 50)) + d)) for k in _SCORE_KEYS}
+        ts = now - timedelta(days=step["days"])
+        out.append({
+            "id": str(uuid.uuid4()), "user_id": user_id, "competitor_id": comp["id"],
+            "company_name": comp["company_name"],
+            "analyzed_at": ts.isoformat(), "date": ts.strftime("%Y-%m-%d"),
+            "overall": compute_overall(scores), "scores": scores,
+            "starting_price": analysis.get("pricing", {}).get("starting_price"),
+            "confidence": step["conf"],
+            "feature_count": max(1, len(analysis.get("features", [])) - (len(_HISTORY_STEPS) - i)),
+        })
+    # newest snapshot = current state
+    out.append({
+        "id": str(uuid.uuid4()), "user_id": user_id, "competitor_id": comp["id"],
+        "company_name": comp["company_name"],
+        "analyzed_at": now.isoformat(), "date": now.strftime("%Y-%m-%d"),
+        "overall": analysis.get("overall"), "scores": base,
+        "starting_price": analysis.get("pricing", {}).get("starting_price"),
+        "confidence": analysis.get("confidence", "Medium"),
+        "feature_count": len(analysis.get("features", [])),
+    })
+    return out

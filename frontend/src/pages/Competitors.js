@@ -1,11 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { toast } from "sonner";
-import { Plus, Play, RefreshCw, Trash2, Eye, Globe, Users } from "lucide-react";
+import { Plus, Play, RefreshCw, Trash2, Eye, Globe, Users, TrendingUp } from "lucide-react";
+import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RTooltip } from "recharts";
 import { useData } from "../context/DataContext";
 import api, { formatApiErrorDetail } from "../lib/api";
 import { Button, Badge, Card, Spinner, EmptyState, Modal, SectionHeader } from "../components/ui";
 import AddCompetitorModal from "../components/AddCompetitorModal";
-import { scoreColor } from "../lib/utils";
+import { scoreColor, SCORE_KEYS } from "../lib/utils";
 
 const statusTone = { analyzed: "success", pending: "warning", analyzing: "info", error: "danger" };
 
@@ -93,8 +94,24 @@ function IconBtn({ icon: Icon, title, onClick, danger, loading, testId }) {
 }
 
 function ViewModal({ comp, onClose }) {
+  const [history, setHistory] = useState(null);
+  const [metric, setMetric] = useState("overall");
+  useEffect(() => {
+    if (comp) {
+      setHistory(null);
+      api.get(`/competitors/${comp.id}/history`).then((r) => setHistory(r.data)).catch(() => setHistory([]));
+    }
+  }, [comp]);
   if (!comp) return null;
   const a = comp.analysis || {};
+  const metricOpts = [{ key: "overall", label: "Overall" }, ...SCORE_KEYS.map((k) => ({ key: k.key, label: k.label }))];
+  const chartData = (history || []).map((h) => ({
+    date: h.date?.slice(5), value: metric === "overall" ? h.overall : h.scores?.[metric] ?? 0,
+  }));
+  const first = history && history.length ? (metric === "overall" ? history[0].overall : history[0].scores?.[metric]) : null;
+  const last = history && history.length ? (metric === "overall" ? history[history.length - 1].overall : history[history.length - 1].scores?.[metric]) : null;
+  const trend = first != null && last != null ? last - first : null;
+
   return (
     <Modal open={!!comp} onClose={onClose} title={comp.company_name} maxWidth="max-w-2xl" testId="view-competitor-modal">
       <div className="space-y-5 text-sm">
@@ -119,6 +136,63 @@ function ViewModal({ comp, onClose }) {
             </div>
           ))}
         </div>
+
+        {/* Analysis history timeline */}
+        <div className="pt-4 border-t border-line" data-testid="analysis-history">
+          <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+            <div className="flex items-center gap-2">
+              <TrendingUp size={16} className="text-accent" />
+              <span className="caption">Analysis History</span>
+              {trend != null && (
+                <Badge tone={trend >= 0 ? "success" : "danger"}>{trend >= 0 ? "▲" : "▼"} {Math.abs(trend)} pts</Badge>
+              )}
+            </div>
+            <select value={metric} onChange={(e) => setMetric(e.target.value)}
+              className="bg-surface-2 border border-line rounded-md text-xs px-2 py-1 text-tsecondary focus:outline-none focus:border-brand"
+              data-testid="history-metric-select">
+              {metricOpts.map((m) => <option key={m.key} value={m.key}>{m.label}</option>)}
+            </select>
+          </div>
+          {history === null ? (
+            <div className="flex justify-center py-8"><Spinner className="w-5 h-5 text-brand" /></div>
+          ) : history.length === 0 ? (
+            <p className="text-xs text-tmuted py-4">No past scans yet. Re-analyze this competitor over time to build a trend.</p>
+          ) : (
+            <>
+              <ResponsiveContainer width="100%" height={180}>
+                <LineChart data={chartData} margin={{ top: 8, right: 12, left: -18, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" vertical={false} />
+                  <XAxis dataKey="date" tick={{ fill: "#94A3B8", fontSize: 10 }} />
+                  <YAxis domain={[0, 100]} tick={{ fill: "#94A3B8", fontSize: 10 }} />
+                  <RTooltip contentStyle={{ background: "#121824", border: "1px solid #1E293B", borderRadius: 10 }} />
+                  <Line type="monotone" dataKey="value" stroke="#60A5FA" strokeWidth={2} dot={{ r: 3, fill: "#60A5FA" }} activeDot={{ r: 5 }} />
+                </LineChart>
+              </ResponsiveContainer>
+              <div className="mt-3 space-y-1.5 max-h-40 overflow-y-auto">
+                {[...history].reverse().map((h, i, arr) => {
+                  const prev = arr[i + 1];
+                  const cur = metric === "overall" ? h.overall : h.scores?.[metric];
+                  const pv = prev ? (metric === "overall" ? prev.overall : prev.scores?.[metric]) : null;
+                  const delta = pv != null ? cur - pv : null;
+                  return (
+                    <div key={h.id} className="flex items-center justify-between text-xs py-1.5 px-2 rounded bg-surface-2/40" data-testid={`history-row-${i}`}>
+                      <span className="text-tsecondary font-mono">{h.date}</span>
+                      <div className="flex items-center gap-3">
+                        <Badge tone="default">{h.confidence}</Badge>
+                        <span className="font-mono font-semibold" style={{ color: scoreColor(cur) }}>{cur}</span>
+                        {delta != null && delta !== 0 && (
+                          <span className={`font-mono ${delta > 0 ? "text-success" : "text-danger"}`}>{delta > 0 ? "+" : ""}{delta}</span>
+                        )}
+                        {(delta === 0 || delta == null) && <span className="text-tmuted font-mono w-6 text-right">—</span>}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </>
+          )}
+        </div>
+
         <div className="flex items-center gap-3 text-xs text-tmuted pt-2 border-t border-line">
           <span>Source: <a href={a.source_url} target="_blank" rel="noreferrer" className="text-accent hover:underline">{a.source_url}</a></span>
           <span>•</span><span>Confidence: {a.confidence}</span><span>•</span><span>Collected: {comp.last_analyzed}</span>

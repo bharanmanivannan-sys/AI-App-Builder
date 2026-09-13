@@ -17,11 +17,17 @@ A competitive-intelligence SaaS MVP: log in, add competitors (company/industry/w
 - Frontend: React 18 + react-router + Tailwind (dark "Executive Command Center" theme) + Recharts + lucide-react + sonner. Context: AuthContext, DataContext. Pages: Login, Dashboard, Competitors, Compare, Insights, Swot, Settings.
 - Scoring: Overall = Price×0.20 + Features×0.25 + Value×0.20 + Market×0.20 + Innovation×0.15 (server-side). Sub-scores are AI-derived, clearly labeled.
 
-## Implemented (2026-06-13)
-- Auth: register/login/logout/me/refresh/forgot/reset; brute-force lockout; admin seed (admin@example.com/admin123).
+## Implemented (2026-06-13)- Auth: register/login/logout/me/refresh/forgot/reset; brute-force lockout; admin seed (admin@example.com/admin123).
 - Competitors CRUD + live analyze; Our Product analyze/edit; dashboard aggregate; insights generate (exec summary, SWOT, insights, recommended actions); actions status; demo load/clear.
 - Full dashboard UI: 6 score cards, AI executive summary, pricing comparison (table+bar), feature matrix (available/not/unknown + category filter + feature-strength scores), radar chart, interactive positioning scatter (changeable X/Y), sortable comparison table, SWOT quadrants, AI insight cards, recommended actions with status dropdowns, one-click PDF export, guided onboarding banner, demo toggle, data-source/confidence badges.
 - Verified by testing agent: backend 92% (only a non-bug assertion), frontend 100%, no input-wipe/reload issue.
+
+### Analysis History (2026-06-13)
+- Each competitor scan is recorded to `competitor_history` (date, overall, per-metric scores, starting_price, confidence, feature_count).
+- `GET /api/competitors/{id}/history` returns the chronological timeline; re-analyzing appends a snapshot; deleting a competitor cascades.
+- Demo competitors pre-seeded with 5 trending snapshots (`demo_data.build_demo_history`).
+- Frontend: competitor View modal shows a line chart (metric selector: Overall + 5 sub-scores), a trend badge, and a per-scan snapshot list with deltas.
+- Verified by testing agent: backend 100%, frontend 100%.
 
 ## Known minor / backlog
 - Positioning scatter labels can overlap when competitors cluster (P2 — add tooltips/spacing).
